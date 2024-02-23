@@ -1,6 +1,6 @@
 const CACHE_NAME = 'my-site-cache-v1';
 const urlsToCache = [
-  'chats/',
+  '/users/karan/chats/',
   'chats/index.html',
   'chats/styles.css',
   'chats/chats/',
