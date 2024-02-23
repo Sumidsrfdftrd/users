@@ -1,6 +1,6 @@
 document.addEventListener('DOMContentLoaded', function () {
     const targetTime = new Date();
-    targetTime.setHours(16, 16, 0, 0);
+    targetTime.setHours(17, 19, 0, 0);
     const currentTime = new Date();
     let remainingTime = targetTime - currentTime;
     updateCountdown();
