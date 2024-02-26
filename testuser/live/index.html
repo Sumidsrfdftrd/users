@@ -345,12 +345,16 @@ border-left: 0.5px solid #00FF00;
 .popup {
     display: none;
     text-align: center;
-    width: 20%;
+    width: 60px;
+    height: 40px;
     z-index: 444;
     color: #fff;
     font-weight: bold;
     font-size: 14px;
     position: fixed;
+    justify-content: center;
+    text-align: center;
+    align-items: center;
     bottom: 40px;
     left: 40%;
     border-radius: 10px;
@@ -474,138 +478,61 @@ h4 {
 	    </div>
             <div id="messages">
         <!-- Messages will be loaded here -->
-    </div>
+            </div>
          <div id="chat-messages">
             <!-- Messages will be loaded here -->
          </div>
         <div class="popup glowing-border" id="popup" onclick="scrollToBottom()">
-             new messages
+             New
         </div>
         <div class="message-input">
         <input type="text" id="message-input" placeholder="Type your message...">
         <button id="send-button" onclick="sendMessage()">Send</button>
        </div>
     </div>
- <script>
-document.addEventListener("DOMContentLoaded", function() {
-    fetch('oldMessages.txt')
-        .then(response => response.text())
-        .then(data => {
-            var messagesContainer = document.getElementById('messages');
-            var messages = data.split('\n'); // Split the data into individual messages
-
-            // Iterate over each message
-            messages.forEach(message => {
-                var parts = message.split(':'); // Split the message into sender and message text
-                var sender = parts[0].trim();
-                var messageText = parts[1].trim();
-
-                // Construct the message HTML
-                var messageHTML;
-                if (sender === 'joined' || sender === 'left') {
-                
-                                     messageHTML = '<div class="message">' +
-                                        '<p class="sender ' + sender.toLowerCase() + '">' + '* ' + messageText + ' ' + sender + '</p>' +
-                                    '</div>';
-                 }
-                 else {
-                                    messageHTML = '<div class="message">' +
-                                        '<p class="sender ' + sender.toLowerCase() + '">' + sender + ':</p>' +
-                                        '<p class="message-text">' + messageText + '</p>' +
-                                    '</div>';
-                 }
-                // Append the message HTML to the messages container
-                messagesContainer.insertAdjacentHTML('beforeend', messageHTML);
-            });
-        })
-        .catch(error => console.error('Error fetching messages:', error));
-});
-</script>
 <script>
-// Function to handle sending new messages
-function scrollToBottom() {
-    var liveMessages = document.getElementById('live-messages');
-    var popup = document.querySelector('.popup');
-    popup.style.display = 'none';
-    liveMessages.scrollTop = liveMessages.scrollHeight;
-}
 function sendMessage() {
     var inputField = document.getElementById('message-input');
     var message = inputField.value.trim(); // Trim to remove leading/trailing whitespace
 
     if (message !== '') {
         // Prompt the user for their name
-        var sender = "sender_name"; // Assuming sender's name is "sumit"
+        var sender = "sender_name"; // Assuming sender's name is "sender_name"
 
-        // Create a new XMLHttpRequest object
-        var xhr = new XMLHttpRequest();
-
-        // Define the request parameters
-        xhr.open('POST', 'appendMessage.php', true);
-        xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
-
-        // Define the callback function for when the request completes
-        xhr.onload = function() {
-            if (xhr.status >= 200 && xhr.status < 300) {
-                // Clear the input field after sending the message
-                inputField.value = '';
-                var liveMessages = document.getElementById('live-messages');
-                liveMessages.scrollTop = liveMessages.scrollHeight;
-            } else {
-                console.error('Request failed with status:', xhr.status);
-            }
-        };
-
-        // Construct the request body
-        var requestBody = 'sender=' + encodeURIComponent(sender) + '&message=' + encodeURIComponent(message);
-
-        // Send the request
-        xhr.send(requestBody);
 
         // Also append the message to the chat messages container
         var messageHTML = '<div class="message">' +
-                            '<p class="sender ' + sender.toLowerCase() + '">' + sender + ':</p>' +
+                            '<p class="sender ' + sender + '">' + sender + ':</p>' +
                             '<p class="message-text">' + message + '</p>' +
                           '</div>';
-
+         inputField.value = '';
         // Append the message HTML to the chat messages container
-        var chatMessages = document.getElementById('chat-messages');
+        var chatMessages = document.getElementById('messages');
         chatMessages.insertAdjacentHTML('beforeend', messageHTML);
+         var liveMessages = document.getElementById('live-messages');
+         liveMessages.scrollTop = liveMessages.scrollHeight;
     }
 }
-function performFileManipulation() {
-    // Send a request to the server to handle the file manipulation
-    fetch('removeAndAppend.php')
-        .then(response => {
-            if (!response.ok) {
-                throw new Error('Network response was not ok');
-            }
-            return response.text();
-        })
-        .then(result => console.log(result))
-        .catch(error => console.error('There was a problem with the fetch operation:', error));
+</script>
+<script>
+function scrollToBottom() {
+    var liveMessages = document.getElementById('live-messages');
+    var popup = document.querySelector('.popup');
+    popup.style.display = 'none';
+    liveMessages.scrollTop = liveMessages.scrollHeight;
 }
+function insertMessagesFromFile(filePath, startLine) {
+    fetch(filePath)
+        .then(response => response.text())
+        .then(data => {
+            const lines = data.split('\n');
+            let lineIndex = localStorage.getItem('lastLine') || startLine - 1;
 
-        setTimeout(function() {
-            fetch('messages.txt')
-                .then(response => response.text())
-                .then(data => {
-                    var chatMessages = document.getElementById('chat-messages');
-                    var messages = data.split('\n'); // Split the data into individual messages
-                    // Function to display each message with a delay
-                    function displayMessage(index) {
-                        setTimeout(function() {
-                            if (index < messages.length) {
-                                var parts = messages[index].split(':'); // Split the message into sender and message text
-                                var sender = parts[0].trim();
-                                var messageText = parts[1].trim();
-                                var popup = document.querySelector('.popup');
-				var liveMessages = document.getElementById('live-messages');
-				var liveChat = document.querySelector('.live-chat');
-				var scrolledPosition = liveMessages.scrollTop;
+            function insertMessage() {
+                                var scrolledPosition = liveMessages.scrollTop;
 				var totalHeight = liveMessages.scrollHeight;
 				var visible = liveMessages.clientHeight;
-				    function hasScrolledAbove() {
+				function hasScrolledAbove() {
 				      if (liveChat.style.display !== 'block') {
 					  return false;
 				      }
@@ -613,8 +540,10 @@ function performFileManipulation() {
 					       return totalHeight - scrolledPosition - visible <= 40;
 				      }
 				    }
-                                // Construct the message HTML
-                                    var messageHTML;
+                if (lineIndex < lines.length) {
+                    const line = lines[lineIndex];
+                    const [sender, messageText] = line.split(':');
+                    var messageHTML;
                                     if (sender === 'joined' || sender === 'left') {
                                             var username = messageText;
                                             var spanElement = document.getElementById(username);
@@ -630,9 +559,9 @@ function performFileManipulation() {
 						    spanElement.remove();
 						}
 					    }
-                                         messageHTML = '<div class="message">' +
-                                           '<p class="sender ' + sender.toLowerCase() + '">' + '* ' + messageText + ' ' + sender + '</p>' +
-                                          '</div>';
+                                            messageHTML = '<div class="message">' +
+                                            '<p class="sender ' + sender.toLowerCase() + '">' + '* ' + messageText + ' ' + sender + '</p>' +
+                                            '</div>';
                                      }
                                      else {
                                                 var newusername = sender;
@@ -643,56 +572,46 @@ function performFileManipulation() {
 						    spans.textContent = newusername + ' | ';
 						    document.querySelector('.heading').appendChild(spans);
 						}
-                                        messageHTML = '<div class="message">' +
-                                          '<p class="sender ' + sender.toLowerCase() + '">' + sender + ':</p>' +
-                                          '<p class="message-text">' + messageText + '</p>' +
-                                        '</div>';
-                                      }
-                                // Append the message HTML to the chat messages container
-                                chatMessages.insertAdjacentHTML('beforeend', messageHTML);
-
-                                // Scroll to the bottom of the chat messages container
-                                if (hasScrolledAbove()) {
+                                                messageHTML = '<div class="message">' +
+                                                 '<p class="sender ' + sender.toLowerCase() + '">' + sender + ':</p>' +
+                                                 '<p class="message-text">' + messageText + '</p>' +
+                                                 '</div>';
+                                    }
+                    document.getElementById('messages').insertAdjacentHTML('beforeend', messageHTML);
+                    lineIndex++;
+                    if (hasScrolledAbove()) {
                                     liveMessages.scrollTop = liveMessages.scrollHeight;
                                     popup.style.display = 'none';
-                                }
-                                else {
-                                   popup.style.display = 'block';
-                                }
-                                performFileManipulation();
-                                // Display the next message after 2 seconds
-                                            var isOnline = 'victim';
-                                            var spanElementis = document.getElementById(isOnline);
-					    if (liveChat.style.display === 'block') {
-						if (!spanElementis) {
-						    var spaned = document.createElement('span');
-						    spaned.id = isOnline;
-						    spaned.textContent = isOnline + ' | ';
-						    document.querySelector('.heading').appendChild(spaned);
-						    messageHTML = '<div class="message">' +
-                                                         '<p class="sender joined' + '">' + '* ' + isOnline + ' joined' + '</p>' +
-                                                         '</div>';
-                                                         chatMessages.insertAdjacentHTML('beforeend', messageHTML);
-						}
-					    } else if (liveChat.style.display === 'none') {
-						if (spanElementis) {
-						    spanElementis.remove();
-						    messageHTML = '<div class="message">' +
-                                                         '<p class="sender left' + '">' + '* ' + isOnline + ' left'+ '</p>' +
-                                                         '</div>';
-                                                         chatMessages.insertAdjacentHTML('beforeend', messageHTML);
-						}
-					    }
-                                displayMessage(index + 1);
-                            }
-                        }, 4000); // 2-second delay
                     }
+                    else {
+                                   popup.style.display = 'flex';
+                    }
+                    localStorage.setItem('lastLine', lineIndex);
+                    setTimeout(insertMessage, 5000); // 2-second gap
+                }
+            }
 
-                    // Start displaying messages
-                    displayMessage(0);
-                })
-                .catch(error => console.error('Error fetching messages:', error));
-        }, 2000); // 2-second delay before fetching messages
+            // Display messages from the first line to the stored line immediately
+            for (let i = startLine - 1; i < lineIndex; i++) {
+                const line = lines[i];
+                const [sender, messageText] = line.split(':');
+                const messageHTML = '<div class="message">' +
+                                    '<p class="sender ' + sender.toLowerCase() + '">' + sender + ':</p>' +
+                                    '<p class="message-text">' + messageText + '</p>' +
+                                '</div>';
+                document.getElementById('messages').insertAdjacentHTML('beforeend', messageHTML);
+            }
+
+            // Continue from the stored line with a 2-second gap
+            insertMessage();
+        })
+        .catch(error => console.error('Error loading messages:', error));
+}
+
+// Usage: insertMessagesFromFile('path/to/oldMessages.txt', 3);
+// Example usage with a sample file path and starting line number
+insertMessagesFromFile('messages.txt', 1);
+
 </script>
     <div class="stop">
         <div class="content1">
@@ -740,6 +659,11 @@ function performFileManipulation() {
             togglestop.style.border = 'none';
             togglestop.style.color = '#88AB8E';
             togglestop.style.borderRadius = '3px 3px 0 0';
+            var isOnline = 'sender_name';
+            messageHTML = '<div class="message">' +
+            '<p class="sender left' + '">' + '* ' + isOnline + ' left'+ '</p>' +
+            '</div>';
+            document.getElementById('messages').insertAdjacentHTML('beforeend', messageHTML);
         }
     });
     document.getElementById('toggleLiveChat').addEventListener('click', function () {
@@ -766,6 +690,19 @@ function performFileManipulation() {
             togglestop.style.color = '#88AB8E';
             togglestop.style.borderRadius = '3px 3px 0 0';
             liveMessages.scrollTop = liveMessages.scrollHeight;
+            var isOnline = 'sender_name';
+            var spanElementis = document.getElementById(isOnline);
+            if (!spanElementis) {
+		    var spaned = document.createElement('span');
+		    spaned.id = isOnline;
+		    spaned.textContent = isOnline + ' | ';
+		    document.querySelector('.heading').appendChild(spaned);
+						    
+	   }
+	   messageHTML = '<div class="message">' +
+          '<p class="sender joined' + '">' + '* ' + isOnline + ' joined' + '</p>' +
+          '</div>';
+          document.getElementById('messages').insertAdjacentHTML('beforeend', messageHTML);
         }
     });
     document.getElementById('togglestop').addEventListener('click', function () {
@@ -791,6 +728,11 @@ function performFileManipulation() {
             toggleLiveChat.style.border = 'none';
             toggleLiveChat.style.color = '#88AB8E';
             toggleLiveChat.style.borderRadius = '3px 3px 0 0';
+            var isOnline = 'sender_name';
+            messageHTML = '<div class="message">' +
+            '<p class="sender left' + '">' + '* ' + isOnline + ' left'+ '</p>' +
+            '</div>';
+            document.getElementById('messages').insertAdjacentHTML('beforeend', messageHTML);
         }
     });
     document.getElementById('toggleInfoButton').addEventListener('click', function () {
@@ -816,6 +758,11 @@ function performFileManipulation() {
             togglestop.style.border = 'none';
             togglestop.style.color = '#88AB8E';
             togglestop.style.borderRadius = '3px 3px 0 0';
+            var isOnline = 'sender_name';
+            messageHTML = '<div class="message">' +
+            '<p class="sender left' + '">' + '* ' + isOnline + ' left'+ '</p>' +
+            '</div>';
+            document.getElementById('messages').insertAdjacentHTML('beforeend', messageHTML);    
         }
     });
 </script>
