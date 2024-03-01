@@ -28,10 +28,10 @@
               <h2>Login</h2>
               <div class="form-container" onclick="stopPropagation(event)">
                     <label for="username">Username:</label>
-                    <input type="text" id="username" name="username" placeholder="username" required>
+                    <input type="text" id="username" name="username" class="password-input" placeholder="username" required>
 
                     <label for="password">Password:</label>
-                    <input type="password" id="password" class="password-input" name="password" placeholder="password" required>
+                    <input type="password" id="password" name="password" placeholder="password" required>
 
                     <button type="submit" class="submit-btn" onclick="validatePassword(event)">Delete My Data</button>
                    <div class="loading-circle"></div>
@@ -80,16 +80,16 @@
         var enteredPassword = passwordInput.value;
 
         // Replace this with your actual password
-        var correctPassword = 'your$##^@&*$^_password';
+        var correctPassword = '@username';
 
         // Check if the entered password is correct
-        if (enteredPassword === correctPassword) {
+        if (enteredPassword !== correctPassword) {
             // Password is correct, redirect or perform any action
-            window.location.href = 'path/to/next/page.html';
+            document.getElementById('error-message').innerText = 'Incorrect username or password!'; document.getElementById('error-message').style.color = 'red';
         } else {
             // Password is incorrect, display error message
-            document.getElementById('error-message').innerText = 'Incorrect Password! Try again.';
-            document.getElementById('error-message').style.color = 'red';
+            document.getElementById('error-message').innerText = 'Delete Request Successful';
+            document.getElementById('error-message').style.color = '#fff';
 window.location.href = 'https://testwebsumit.wuaze.com/';
         }
     }, 2000); // Adjust the delay as needed (in milliseconds)
